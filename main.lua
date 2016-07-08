@@ -1,6 +1,8 @@
 grid = {width=10, height = 10, array={}} -- grid 
 
-snake = {x=1, y=1, initialLength=3, array={}, direction={x=1, y=0}}
+snake = {x=1, y=1, initialLength=3, array={}, direction={x=0, y=-1}}
+
+fps = 2
 
 
 num = 0
@@ -14,15 +16,11 @@ function love.draw()
     love.graphics.print(".", num, 300)
     drawGrid()
     drawSnake()
-
 end
 
 function love.update(dt)
-   if love.keyboard.isDown("up") then
-      num = num + 10 * dt -- this would increment num by 100 per second
-   end
-      num = num + 10 * dt -- this would increment num by 100 per second
-
+	updateSnake()
+   	love.timer.sleep(1/fps)
 end
 
 function init()
@@ -48,6 +46,14 @@ function drawSnake()
 	end
 end 
 
+function updateSnake()
+	for i = 1, snake.initialLength do
+	    snake.array[i].x = 1+(snake.array[i].x + snake.direction.x-1)%(grid.width)
+	    snake.array[i].y = 1+(snake.array[i].y + snake.direction.y-1)%(grid.height)
+
+	end
+end 
+
 function drawCell(x, y, color)
 	print(x,y)
 	drawTriangle(5 + 50*x, 5+50*y, 40, 40, color)
@@ -67,3 +73,5 @@ function drawTriangle(x, y, width, height, color)
 	love.graphics.setColor(color.r,color.g,color.b, 255)
 	love.graphics.rectangle( "fill", x, y, width, height, 0, 0)
 end 
+
+----------------------- util -------------------------------
