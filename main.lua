@@ -1,11 +1,9 @@
 grid = {width=10, height = 10, array={}} -- grid 
 
-snake = {x=1, y=1, initialLength=3, array={}, direction={x=0, y=-1}}
-
-fps = 2
+snake = {x=1, y=1, initialLength=3, array={}, direction={x=1, y=0}, speed=2}
 
 
-num = 0
+age = 0
 
 function love.load()
    init()
@@ -16,11 +14,36 @@ function love.draw()
     love.graphics.print(".", num, 300)
     drawGrid()
     drawSnake()
+    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
 end
 
 function love.update(dt)
-	updateSnake()
-   	love.timer.sleep(1/fps)
+	if age > 1/snake.speed then
+		updateSnake()
+		age = 0
+	end
+   	-- love.timer.sleep(1/fps)
+   	age = age +dt
+   	if snake.direction.y == 0 then
+	   	if love.keyboard.isDown( "down" ) then
+	   		snake.direction = {x=0, y=1}
+	   	end
+
+	   	if love.keyboard.isDown( "up" ) then
+	   		snake.direction = {x=0, y=-1}
+	   	end
+	end
+	
+   	if snake.direction.x == 0 then
+		if love.keyboard.isDown( "left" ) then
+	   		snake.direction = {x=-1, y=0}
+	   	end
+
+	   	if love.keyboard.isDown( "right" ) then
+	   		snake.direction = {x=1, y=0}
+	   	end
+	end
+
 end
 
 function init()
@@ -35,9 +58,13 @@ function init()
 
 	---------------------- init snake -------------------------
 	for i = 1, snake.initialLength do
-	    snake.array[i] = {x=snake.x + i*snake.direction.x ,y= snake.y + i*snake.direction.y}
+	    snake.array[i] = {x=1+(snake.x + snake.direction.x*i-1)%(grid.width),
+	    				y=1+(snake.y + snake.direction.y*i-1)%(grid.height)}
 	end
-
+	for i=1, #snake.array do
+		print(i, snake.array[i].x, snake.array[i].y)
+	end
+	print("*************************")
 end 
 
 function drawSnake()
@@ -47,15 +74,20 @@ function drawSnake()
 end 
 
 function updateSnake()
-	for i = 1, snake.initialLength do
-	    snake.array[i].x = 1+(snake.array[i].x + snake.direction.x-1)%(grid.width)
-	    snake.array[i].y = 1+(snake.array[i].y + snake.direction.y-1)%(grid.height)
+	print("-----------------------")
+	for i = 1, #snake.array-1 do
+	    snake.array[i].x = snake.array[i+1].x
+	    snake.array[i].y = snake.array[i+1].y
+	end
+	snake.array[#snake.array].x = 1+(snake.array[#snake.array].x + snake.direction.x-1)%(grid.width)
+	snake.array[#snake.array].y = 1+(snake.array[#snake.array].y + snake.direction.y-1)%(grid.height)
 
+	for i=1, #snake.array do
+		print(i, snake.array[i].x, snake.array[i].y)
 	end
 end 
 
 function drawCell(x, y, color)
-	print(x,y)
 	drawTriangle(5 + 50*x, 5+50*y, 40, 40, color)
 end 
 
